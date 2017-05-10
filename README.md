@@ -1,5 +1,5 @@
 # my-plugins
-
+![](https://img.shields.io/badge/vue-@package-green.svg)
 > A Vue.js project
 
 ## Build Setup
