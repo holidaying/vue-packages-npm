@@ -52,7 +52,7 @@ export default {
     name: 'hello',
     data:function() {
         return {
-            msg: 'VDT开发组件',
+            msg: '前端开发组件',
             searchData: {
                 name: "",
                 dateTimeStart: {
