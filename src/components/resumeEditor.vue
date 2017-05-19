@@ -1,6 +1,6 @@
 <template>
-    <div class="resumeEditor">
-       {{state.htmlContext}}
+    <div class="resumeEditor" v-html="state.htmlContext">
+       
     </div>
 </template>
 <script>
