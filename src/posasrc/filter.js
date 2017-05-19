@@ -1,5 +1,5 @@
-export default {
-    initFilter: function(Vue) {
+define(function(){
+    var initFilter=function(Vue) {
         //单向过滤器
         //年-月-日 时：分：秒
         Vue.filter('dateTimeFormat', function(value) {
@@ -638,5 +638,6 @@ export default {
         Vue.filter('libType', function(value) {
             return value == '0' ? "布控人员库" : '静态人员库';
         })
-    }
-};
+    };
+    return initFilter;
+});

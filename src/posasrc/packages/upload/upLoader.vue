@@ -28,7 +28,7 @@ export default {
         //上传文件的类型
         dataType: {
             type: String,
-            default: ''
+            default: 'jpg,jpeg'
         },
         //组件的文件的style
         dataStyle: {
@@ -86,7 +86,7 @@ export default {
                     self.fileObject.name = arrName;
                     fileTypeStrTxt = fileTypeStrTxt.toLowerCase(); //无论大小写均转小写字母
                     if (self.dataType.indexOf(fileTypeStrTxt) < 0) {
-                        self.$message.warning(message + self.dataType + '格式的文件');
+                        self.$notify.warning(message + self.dataType + '格式的文件');
                         return;
                     };
                     self.$emit('on-selected', data.originalFiles[0],data.fileInput[0].value);

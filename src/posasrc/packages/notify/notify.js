@@ -1,317 +1,121 @@
-﻿/**
- * 系统提示相关组件
+import ToastComponent from './toast.vue';
+import show from './js/show';
+
+/**
+ * Global Options
+ * @type Object
  */
-define([], function() {
+let globalOptions = {};
 
+/**
+ * Initiate the Plugin
+ * @param Vue
+ * @param options
+ */
+export const initPlugin = function (Vue, options) {
+    Toast.setGlobalOptions(options);
+    Toast.init();
+    Vue.component('posaNotify', ToastComponent);
+    Vue.notify = Vue.prototype.$notify = Toast;
+};
 
-	var win = window,
-		doc = document;
-    window.DOMPanel = (function() {
+/**
+ * Toast Object
+ */
+export const Toast = {
+    el: null,
+    init: () => {
+        initiateCustomToasts();
+    },
+    show: (message, options) => {
+        return _show(message, options);
+    },
+    success :  (message, options) => {
+        options = options || {};
+        options.type = "success";
+        return _show(message, options);
+    },
+    info :  (message, options) => {
+        options = options || {};
+        options.type = "info";
+        return _show(message, options);
+    },
+    error :  (message, options) => {
+        options = options || {};
+        options.type = "error";
+        return _show(message, options);
+    },
+    warning :  (message, options) => {
+        options = options || {};
+        options.type = "error";
+        return _show(message, options);
+    },
+    global: {},
+    setGlobalOptions: (options) => {
+        globalOptions = options || {};
+    }
+};
 
-        var panel = null;
+/**
+ * Wrapper for show method in order to manipulate options
+ *
+ * @param message
+ * @param options
+ * @returns {*}
+ * @private
+ */
+export const _show = function (message, options) {
+    options = options || {};
 
-        return {
+    if (typeof options !== "object") {
+        console.error("Options should be a type of object. given : " + options);
+        return null;
+    }
 
-            append: function(dom) {
-                this.getPanel().append(dom);
-            },
+    // merge global options with options
+    // JSON.parse is to protect globalOptions from overriding.
+    let _cachedGlobalOptions = JSON.parse(JSON.stringify(globalOptions));
+    Object.assign(_cachedGlobalOptions, options);
+    options = _cachedGlobalOptions;
 
-            prepend: function(dom) {
-                this.getPanel().prepend(dom);
-            },
+    return show(message, options);
+};
 
-            getPanel: function() {
-                if (panel === null) {
-                    panel = jQuery('#domPanel');
-                    if (panel.size() === 0) {
-                        panel = jQuery('<div id="domPanel" />').prependTo('body');
-                    }
-                }
+/**
+ * Register the Custom Toasts
+ */
+export const initiateCustomToasts = function () {
 
-                return panel;
-            }
-        };
+    let customToasts = globalOptions.globalToasts;
 
-    })();
-	var ENV = {
+    // this will initiate toast for the custom toast.
+    let initiate = (message, options) => {
 
-		on: function(el, type, cb) {
-			if ('addEventListener' in win) {
-				el.addEventListener(type, cb, false);
-			} else {
-				el.attachEvent('on' + type, cb);
-			}
-		},
+        // check if passed option is a available method if so call it.
+        if(typeof(options) === 'string' && Toast[options]) {
+           return Toast[options].apply(Toast, [message, {}]);
+        }
 
-		off: function(el, type, cb) {
-			if ('addEventListener' in win) {
-				el.removeEventListener(type, cb, false);
-			} else {
-				el.detachEvent('on' + type, cb);
-			}
-		},
+        // or else create a new toast with passed options.
+        return _show(message, options);
+    };
 
-		bind: function(fn, ctx) {
-			return function() {
-				fn.apply(ctx, arguments);
-			};
-		},
+    if(customToasts) {
 
-		isArray: Array.isArray || function(obj) {
-			return Object.prototype.toString.call(obj) === '[object Array]';
-		},
+        Object.keys(customToasts).forEach( key => {
 
-		config: function(preferred, fallback) {
-			return preferred ? preferred : fallback;
-		},
+            // register the custom toast events to the Toast.custom property
+            Toast.global[key] = (payload = {}) => {
 
-		transSupport: false,
+                // return the it in order to expose the Toast methods
+                return customToasts[key].apply(null, [ payload, initiate ]);
+            };
+        });
 
-		useFilter: /msie [678]/i.test(navigator.userAgent),
-		// sniff, sniff
-		checkTransition: function() {
-			var el = doc.createElement('div');
-			var vendors = {
-				webkit: 'webkit',
-				Moz: '',
-				O: 'o',
-				ms: 'MS'
-			};
+        // remove customToasts after mocking the methods.
+        delete globalOptions.customToasts;
+    }
+};
 
-			for (var vendor in vendors) {
-				if (vendor + 'Transition' in el.style) {
-					this.vendorPrefix = vendors[vendor];
-					this.transSupport = true;
-				}
-			}
-		}
-	};
+export default {initPlugin, Toast} ;
 
-	ENV.checkTransition();
-
-	var Notify = function(o) {
-		o = o || {};
-		this.queue = [];
-		this.baseCls = o.baseCls || 'notify';
-		this.addnCls = o.addnCls || '';
-		this.timeout = 'timeout' in o ? o.timeout : 3000;
-		this.waitForMove = o.waitForMove || false;
-		this.clickToClose = o.clickToClose || false;
-		this.container = o.container;
-
-		try {
-			this.setupEl();
-		} catch (e) {
-			jQuery(ENV.bind(this.setupEl, this));
-		}
-	};
-
-	Notify.prototype = {
-
-		constructor: Notify,
-
-		setupEl: function() {
-			var el = doc.createElement('div');
-			el.style.display = 'none';
-			this.container = this.container || DOMPanel.getPanel()[0];
-			this.container.appendChild(el);
-			this.el = el;
-			this.removeEvent = ENV.bind(this.remove, this);
-			this.transEvent = ENV.bind(this.afterAnimation, this);
-			this.run();
-		},
-
-		afterTimeout: function() {
-			if (!ENV.config(this.currentMsg.waitForMove, this.waitForMove)) {
-				this.remove();
-			} else if (!this.removeEventsSet) {
-				ENV.on(doc.body, 'mousemove', this.removeEvent);
-				ENV.on(doc.body, 'click', this.removeEvent);
-				ENV.on(doc.body, 'keypress', this.removeEvent);
-				ENV.on(doc.body, 'touchstart', this.removeEvent);
-				this.removeEventsSet = true;
-			}
-		},
-
-		run: function() {
-			if (this.animating || !this.queue.length || !this.el) {
-				return;
-			}
-
-			this.animating = true;
-			if (this.currentTimer) {
-				clearTimeout(this.currentTimer);
-				this.currentTimer = null;
-			}
-
-			var msg = this.queue.shift();
-			var clickToClose = ENV.config(msg.clickToClose, this.clickToClose);
-
-			if (clickToClose) {
-				ENV.on(this.el, 'click', this.removeEvent);
-				ENV.on(this.el, 'touchstart', this.removeEvent);
-			}
-			var timeout = ENV.config(msg.timeout, this.timeout);
-
-			if (timeout > 0) {
-				this.currentTimer = setTimeout(ENV.bind(this.afterTimeout, this), timeout);
-			}
-
-			if (ENV.isArray(msg.html)) {
-				msg.html = '<ul><li>' + msg.html.join('<li>') + '</ul>';
-			}
-
-			this.el.innerHTML = msg.html;
-			this.currentMsg = msg;
-			this.el.className = this.baseCls;
-			if (ENV.transSupport) {
-				this.el.style.display = 'block';
-				setTimeout(ENV.bind(this.showMessage, this), 50);
-			} else {
-				this.showMessage();
-			}
-
-		},
-
-		setOpacity: function(opacity) {
-			if (ENV.useFilter) {
-				try {
-					this.el.filters.item('DXImageTransform.Microsoft.Alpha').Opacity = opacity * 100;
-				} catch (err) {}
-			} else {
-				this.el.style.opacity = String(opacity);
-
-			}
-		},
-
-		showMessage: function() {
-			var addnCls = ENV.config(this.currentMsg.addnCls, this.addnCls);
-			if (ENV.transSupport) {
-				this.el.className = this.baseCls + ' ' + addnCls + ' ' + this.baseCls + '-animate';
-			} else {
-				var opacity = 0;
-				this.el.className = this.baseCls + ' ' + addnCls + ' ' + this.baseCls + '-js-animate';
-				this.setOpacity(0); // reset value so hover states work
-				this.el.style.display = 'block';
-
-				var self = this;
-				var interval = setInterval(function() {
-					if (opacity < 1) {
-						opacity += 0.1;
-						opacity = Math.min(1, opacity);
-						self.setOpacity(opacity);
-					} else {
-						clearInterval(interval);
-					}
-				}, 30);
-			}
-		},
-
-		hideMessage: function() {
-			var addnCls = ENV.config(this.currentMsg.addnCls, this.addnCls);
-			if (ENV.transSupport) {
-				this.el.className = this.baseCls + ' ' + addnCls;
-				ENV.on(this.el, ENV.vendorPrefix ? ENV.vendorPrefix + 'TransitionEnd' : 'transitionend', this.transEvent);
-			} else {
-				var opacity = 1;
-				var self = this;
-				var interval = setInterval(function() {
-					if (opacity > 0) {
-						opacity -= 0.1;
-						opacity = Math.max(0, opacity);
-						self.setOpacity(opacity);
-					} else {
-						self.el.className = self.baseCls + ' ' + addnCls;
-						clearInterval(interval);
-						self.afterAnimation();
-					}
-				}, 30);
-			}
-		},
-
-		afterAnimation: function() {
-			if (ENV.transSupport) {
-				ENV.off(this.el, ENV.vendorPrefix ? ENV.vendorPrefix + 'TransitionEnd' : 'transitionend', this.transEvent);
-			}
-
-			if (this.currentMsg.cb) {
-				this.currentMsg.cb();
-			}
-			this.el.style.display = 'none';
-			this.animating = false;
-			this.run();
-		},
-
-		remove: function(e) {
-			var cb = typeof e === 'function' ? e : null;
-
-			ENV.off(doc.body, 'mousemove', this.removeEvent);
-			ENV.off(doc.body, 'click', this.removeEvent);
-			ENV.off(doc.body, 'keypress', this.removeEvent);
-			ENV.off(doc.body, 'touchstart', this.removeEvent);
-			ENV.off(this.el, 'click', this.removeEvent);
-			ENV.off(this.el, 'touchstart', this.removeEvent);
-			this.removeEventsSet = false;
-
-			if (cb && this.currentMsg) {
-				this.currentMsg.cb = cb;
-			}
-			if (this.animating) {
-				this.hideMessage();
-			} else if (cb) {
-				cb();
-			}
-		},
-
-		log: function(html, o, cb, defaults) {
-			var msg = {},
-				opt = null;
-			if (defaults) {
-				for (opt in defaults) {
-					msg[opt] = defaults[opt];
-				}
-			}
-
-			if (typeof o === 'function') {
-				cb = o;
-			} else if (o) {
-				for (opt in o) {
-					msg[opt] = o[opt];
-				}
-			}
-
-			msg.html = html;
-			msg.cb = cb ? cb : msg.cb;
-			this.queue.push(msg);
-			this.run();
-			return this;
-		},
-
-		spawn: function(defaults) {
-			var self = this;
-			return function(html, o, cb) {
-				return self.log.call(self, html, o, cb, defaults);
-			};
-		}
-	};
-
-	var notify = new Notify();
-
-	notify.info = notify.spawn({
-		addnCls: 'notify-info'
-	});
-
-	notify.error = notify.spawn({
-		addnCls: 'notify-error'
-	});
-
-	notify.warn = notify.spawn({
-		addnCls: 'notify-warn'
-	});
-
-	notify.success = notify.spawn({
-		addnCls: 'notify-success'
-	});
-	
-	return notify;
-});

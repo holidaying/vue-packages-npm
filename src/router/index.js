@@ -8,10 +8,13 @@ import pagination from 'src/components/pagination'
 import dialog from 'src/components/dialog'
 import about from 'src/components/about'
 import detailsDialog from 'src/components/detailsDialog'
+import login from 'src/components/login'
+import jian from 'src/components/jian'
 Vue.use(Router)
 
 export default new Router({
-    routes: [{
+    routes: [
+    {
         path: '/',
         name: 'Hello',
         component: index,
@@ -43,6 +46,16 @@ export default new Router({
             path: "/about",
             name: "about",
             component: about
+        }, {
+            path: "/login",
+            name: "login",
+            component: login
         }, ]
-    }]
+    },
+    {
+        path: "/jian",
+        name: "jian",
+        component: jian
+    },
+    ]
 })

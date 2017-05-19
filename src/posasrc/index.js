@@ -1,12 +1,13 @@
 var dateTime = require('./packages/time-pick/dateTime.vue');
 var about = require('./packages/about/about.vue');
 var cascade = require('./packages/cascade/cascade.vue');
-//var notify = require('./packages/notify/notify.js');
-var notifyCss = require('./packages/notify/notify.css');
+var notify = require('./packages/notify/notify.js');
+var posalogin = require('./packages/login/login.js');
 var pagiNation = require('./packages/pagination/pagiNation.vue');
 var upLoader = require('./packages/upload/upLoader.vue');
 var dialog = require('./packages/dialog/dialog.vue')
 var detailsDialog = require('./packages/details-dialog/detailsDialog.vue')
+var Filter = require('./filter')
 const components = [
     dateTime,
     upLoader,
@@ -22,12 +23,12 @@ var install = function(Vue, options) {
     components.map(component => {
         Vue.component(component.name, component);
     });
-
-    //Vue.prototype.$notify = window.notify;
-    
+    Filter(Vue);
+    notify.initPlugin(Vue, options)
+    Vue.prototype.$posalogin = posalogin;
 };
 if (typeof window !== 'undefined' && window.Vue) {
     install(window.Vue);
 };
 // export default install;
-module.exports = { install };
+module.exports = {install};

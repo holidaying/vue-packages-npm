@@ -27,15 +27,23 @@
                         <!-- <a href="/v2/guide/installation.html" class="sidebar-link">分页组件(posa-pagi-nation)</a> -->
                     </li>
                     <li>
-                        <router-link to="/about">About</router-link>
-                        <!-- <a href="/v2/guide/installation.html" class="sidebar-link">详情组件</a> -->
-                    </li>
-                    <li>
                         <router-link to="/dialog">dialog组件(posa-dialog)</router-link>
                         <!-- <a href="/v2/guide/installation.html" class="sidebar-link">详情组件</a> -->
                     </li>
                     <li>
                         <router-link to="/detailsDialog">dialogDetail组件(posa-dialog-detail)</router-link>
+                        <!-- <a href="/v2/guide/installation.html" class="sidebar-link">详情组件</a> -->
+                    </li>
+                    <li>
+                        <router-link to="/login">login组件(posa-login)</router-link>
+                        <!-- <a href="/v2/guide/installation.html" class="sidebar-link">详情组件</a> -->
+                    </li>
+                     <li>
+                        <router-link to="/jian">测试组件(简历测试)</router-link>
+                        <!-- <a href="/v2/guide/installation.html" class="sidebar-link">详情组件</a> -->
+                    </li>
+                    <li>
+                        <router-link to="/about">About</router-link>
                         <!-- <a href="/v2/guide/installation.html" class="sidebar-link">详情组件</a> -->
                     </li>
                 </ul>
@@ -50,7 +58,7 @@
 <script>
 export default {
     name: 'hello',
-    data:function() {
+    data: function() {
         return {
             msg: '前端开发组件',
             searchData: {
@@ -113,6 +121,7 @@ a {
 .sidebar li a:hover {
     border-bottom: 2px solid #42b983;
 }
+
 .sidebar li a:active {
     border-bottom: 2px solid #42b983;
 }
