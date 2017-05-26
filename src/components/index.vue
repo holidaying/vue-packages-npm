@@ -15,7 +15,7 @@
                         <!-- <a href="/v2/guide/installation.html" class="sidebar-link">时间组件(posa-date-picker)</a> -->
                     </li>
                     <li>
-                        <router-link to="/uploader">上传组件(posa-uploader)</router-link>
+                        <router-link :to="{path:'uploader'}">上传组件(posa-uploader)</router-link>
                         <!-- <a href="/v2/guide/installation.html" class="sidebar-link">上传组件(posa-uploader)</a> -->
                     </li>
                     <li>
@@ -38,8 +38,12 @@
                         <router-link to="/login">login组件(posa-login)</router-link>
                         <!-- <a href="/v2/guide/installation.html" class="sidebar-link">详情组件</a> -->
                     </li>
-                     <li>
+                    <li>
                         <router-link to="/jian">测试组件(简历测试)</router-link>
+                        <!-- <a href="/v2/guide/installation.html" class="sidebar-link">详情组件</a> -->
+                    </li>
+                    <li>
+                        <router-link to="/timeline">时间轴(时间轴)</router-link>
                         <!-- <a href="/v2/guide/installation.html" class="sidebar-link">详情组件</a> -->
                     </li>
                     <li>

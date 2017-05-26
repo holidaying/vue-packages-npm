@@ -7,6 +7,7 @@ var pagiNation = require('./packages/pagination/pagiNation.vue');
 var upLoader = require('./packages/upload/upLoader.vue');
 var dialog = require('./packages/dialog/dialog.vue')
 var detailsDialog = require('./packages/details-dialog/detailsDialog.vue')
+var timeline = require('./packages/timeline/timeline.vue')
 var Filter = require('./filter')
 const components = [
     dateTime,
@@ -15,6 +16,7 @@ const components = [
     pagiNation,
     dialog,
     detailsDialog,
+    timeline,
     about
 ];
 

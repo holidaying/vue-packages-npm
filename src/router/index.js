@@ -10,6 +10,7 @@ import about from 'src/components/about'
 import detailsDialog from 'src/components/detailsDialog'
 import login from 'src/components/login'
 import jian from 'src/components/jian'
+import timeline from 'src/components/timeline'
 Vue.use(Router)
 
 export default new Router({
@@ -50,12 +51,18 @@ export default new Router({
             path: "/login",
             name: "login",
             component: login
-        }, ]
+        }
+        ]
     },
     {
         path: "/jian",
         name: "jian",
         component: jian
     },
+    {
+            path: "/timeline",
+            name: "timeline",
+            component: timeline
+    }, 
     ]
 })
